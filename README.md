@@ -1,13 +1,13 @@
-# イケメンサバイバル〜バレンタインの試練〜
-## Ikemen Survival: Valentine's Trial
+# アイドルサバイバル〜バレンタインの試練〜
+## Idol Survival: Valentine's Trial
 
-あなたはモテすぎて困っているイケメン!
-女子からのチョコを集めてレベルアップしよう。
-でも気をつけろ...嫉妬した男子たちが石を投げてくるぞ!
+あなたは人気すぎて大変なアイドル!
+ファンからのチョコを集めてレベルアップしよう。
+でも気をつけろ...嫉妬したアンチたちが石を投げてくるぞ!
 
 ## Play
 
-https://rsasaki0109.github.io/valentine_as_a_handsome_guy/
+https://rsasaki0109.github.io/idol_survival_valentine/
 
 ## How to Play
 
@@ -35,16 +35,16 @@ https://rsasaki0109.github.io/valentine_as_a_handsome_guy/
 
 | Character | Description |
 |-----------|-------------|
-| Player | Handsome guy (Ikemen) trying to survive |
-| Female NPC | Throws chocolates every 3 seconds |
-| Male NPC | Throws stones every 2 seconds (jealous!) |
+| Player | Popular idol trying to survive |
+| Fan NPC | Throws chocolates every 3 seconds |
+| Anti NPC | Throws stones every 2 seconds (jealous!) |
 
 ## Local Development
 
 ```bash
 # Clone the repository
-git clone https://github.com/rsasaki0109/valentine_as_a_handsome_guy.git
-cd valentine_as_a_handsome_guy
+git clone https://github.com/rsasaki0109/idol_survival_valentine.git
+cd idol_survival_valentine
 
 # Start local server
 python3 -m http.server 8888

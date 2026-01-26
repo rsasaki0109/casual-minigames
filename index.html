@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>イケメンサバイバル〜バレンタインの試練〜</title>
+    <title>アイドルサバイバル〜バレンタインの試練〜</title>
     <style>
         * {
             margin: 0;
@@ -172,13 +172,13 @@
         <div id="damageFlash"></div>
         <div id="overlay">
             <div class="title-screen">
-                <h1>イケメンサバイバル</h1>
+                <h1>アイドルサバイバル</h1>
                 <p>〜バレンタインの試練〜</p>
             </div>
             <div id="overlayMessage">
-                あなたはモテすぎて困っているイケメン!<br>
-                女子からのチョコを集めてレベルアップしよう。<br>
-                でも気をつけろ...嫉妬した男子たちが石を投げてくるぞ!<br><br>
+                あなたは人気すぎて大変なアイドル!<br>
+                ファンからのチョコを集めてレベルアップしよう。<br>
+                でも気をつけろ...嫉妬したアンチたちが石を投げてくるぞ!<br><br>
                 <strong>60秒生き残るか、Lv.5に到達すればクリア!</strong>
             </div>
             <button id="retryBtn">START</button>
@@ -275,7 +275,7 @@
                 ctx.arc(this.x, this.y + 2, 10, 0.1 * Math.PI, 0.9 * Math.PI);
                 ctx.stroke();
 
-                // Hair (sparkly for ikemen)
+                // Hair (sparkly for idol)
                 ctx.fillStyle = '#4a3728';
                 ctx.beginPath();
                 ctx.ellipse(this.x, this.y - this.size + 5, 25, 15, 0, Math.PI, 0);
@@ -333,7 +333,7 @@
 
                 if (this.hp <= 0) {
                     gameState = 'gameover';
-                    showOverlay('GAME OVER', 'イケメンは倒れた...<br>石に当たりすぎだ!', '#ff4444');
+                    showOverlay('GAME OVER', 'アイドルは倒れた...<br>石に当たりすぎだ!', '#ff4444');
                 }
             }
 
@@ -348,21 +348,28 @@
 
                     if (this.level === MAX_LEVEL) {
                         gameState = 'clear';
-                        showOverlay('CLEAR!', 'おめでとう!<br>Lv.5に到達した!<br>最強のイケメンだ!', '#44ff44');
+                        showOverlay('CLEAR!', 'おめでとう!<br>Lv.5に到達した!<br>トップアイドルだ!', '#44ff44');
                     }
                 }
             }
         }
 
         // ===== NPC Class =====
+        const FAN_COLORS = ['#FFB347', '#87CEEB', '#DDA0DD', '#98FB98', '#F0E68C']; // Orange, Sky blue, Plum, Pale green, Khaki
+        const ANTI_COLORS = ['#708090', '#4A4A4A', '#556B2F', '#483D8B', '#8B4513']; // Slate gray, Dark gray, Dark olive, Dark slate blue, Saddle brown
+
         class NPC {
-            constructor(x, y, isFemale) {
+            constructor(x, y, isFan) {
                 this.x = x;
                 this.y = y;
                 this.size = NPC_SIZE;
-                this.isFemale = isFemale;
-                this.throwInterval = isFemale ? FEMALE_THROW_INTERVAL : MALE_THROW_INTERVAL;
+                this.isFan = isFan;
+                this.throwInterval = isFan ? FEMALE_THROW_INTERVAL : MALE_THROW_INTERVAL;
                 this.lastThrowTime = Date.now() + Math.random() * this.throwInterval;
+                // Random color for variety
+                this.color = isFan
+                    ? FAN_COLORS[Math.floor(Math.random() * FAN_COLORS.length)]
+                    : ANTI_COLORS[Math.floor(Math.random() * ANTI_COLORS.length)];
             }
 
             update() {
@@ -378,7 +385,7 @@
                 const dy = player.y - this.y;
                 const dist = Math.sqrt(dx * dx + dy * dy);
 
-                if (this.isFemale) {
+                if (this.isFan) {
                     // Chocolate - parabolic trajectory
                     projectiles.push(new Chocolate(this.x, this.y, player.x, player.y));
                 } else {
@@ -389,7 +396,7 @@
 
             draw() {
                 // Body
-                ctx.fillStyle = this.isFemale ? '#ffb6c1' : '#87ceeb';
+                ctx.fillStyle = this.color;
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
                 ctx.fill();
@@ -397,63 +404,136 @@
                 // Face
                 ctx.fillStyle = '#333';
 
-                if (this.isFemale) {
-                    // Happy eyes (hearts)
-                    ctx.fillStyle = '#ff69b4';
-                    this.drawHeart(this.x - 10, this.y - 5, 8);
-                    this.drawHeart(this.x + 10, this.y - 5, 8);
+                if (this.isFan) {
+                    // Sparkly eyes
+                    ctx.fillStyle = '#FFD700';
+                    this.drawStar(this.x - 10, this.y - 5, 6);
+                    this.drawStar(this.x + 10, this.y - 5, 6);
 
-                    // Smile
+                    // Big smile with blush
                     ctx.strokeStyle = '#333';
                     ctx.lineWidth = 2;
                     ctx.beginPath();
-                    ctx.arc(this.x, this.y + 5, 8, 0.1 * Math.PI, 0.9 * Math.PI);
+                    ctx.arc(this.x, this.y + 5, 10, 0.1 * Math.PI, 0.9 * Math.PI);
                     ctx.stroke();
 
-                    // Hair ribbon
-                    ctx.fillStyle = '#ff69b4';
+                    // Blush cheeks
+                    ctx.fillStyle = 'rgba(255, 150, 150, 0.5)';
                     ctx.beginPath();
-                    ctx.ellipse(this.x, this.y - this.size + 5, 10, 8, 0, 0, Math.PI * 2);
+                    ctx.ellipse(this.x - 18, this.y + 5, 6, 4, 0, 0, Math.PI * 2);
+                    ctx.ellipse(this.x + 18, this.y + 5, 6, 4, 0, 0, Math.PI * 2);
                     ctx.fill();
+
+                    // Penlight (right hand)
+                    this.drawPenlight(this.x + 30, this.y - 15);
+
+                    // Uchiwa fan (left hand)
+                    this.drawUchiwa(this.x - 35, this.y + 5);
                 } else {
-                    // Angry eyes
+                    // Smirking eyes (looking at phone)
                     ctx.fillStyle = '#333';
                     ctx.beginPath();
-                    ctx.arc(this.x - 10, this.y - 5, 4, 0, Math.PI * 2);
-                    ctx.arc(this.x + 10, this.y - 5, 4, 0, Math.PI * 2);
+                    ctx.arc(this.x - 8, this.y - 3, 3, 0, Math.PI * 2);
+                    ctx.arc(this.x + 8, this.y - 3, 3, 0, Math.PI * 2);
                     ctx.fill();
 
-                    // Angry eyebrows
+                    // Sneaky eyebrows
                     ctx.strokeStyle = '#333';
-                    ctx.lineWidth = 3;
-                    ctx.beginPath();
-                    ctx.moveTo(this.x - 15, this.y - 15);
-                    ctx.lineTo(this.x - 5, this.y - 10);
-                    ctx.moveTo(this.x + 15, this.y - 15);
-                    ctx.lineTo(this.x + 5, this.y - 10);
-                    ctx.stroke();
-
-                    // Frown
                     ctx.lineWidth = 2;
                     ctx.beginPath();
-                    ctx.arc(this.x, this.y + 15, 8, 1.1 * Math.PI, 1.9 * Math.PI);
+                    ctx.moveTo(this.x - 14, this.y - 12);
+                    ctx.lineTo(this.x - 4, this.y - 10);
+                    ctx.moveTo(this.x + 14, this.y - 12);
+                    ctx.lineTo(this.x + 4, this.y - 10);
                     ctx.stroke();
 
-                    // Anger mark
-                    ctx.fillStyle = '#ff4444';
-                    ctx.font = 'bold 16px Arial';
-                    ctx.fillText('💢', this.x + 15, this.y - 20);
+                    // Smirk
+                    ctx.beginPath();
+                    ctx.moveTo(this.x - 8, this.y + 10);
+                    ctx.quadraticCurveTo(this.x + 5, this.y + 8, this.x + 10, this.y + 14);
+                    ctx.stroke();
+
+                    // Smartphone in hand
+                    this.drawSmartphone(this.x + 25, this.y + 10);
                 }
             }
 
-            drawHeart(x, y, size) {
+            drawStar(x, y, size) {
                 ctx.beginPath();
-                ctx.moveTo(x, y + size / 4);
-                ctx.bezierCurveTo(x, y, x - size / 2, y, x - size / 2, y + size / 4);
-                ctx.bezierCurveTo(x - size / 2, y + size / 2, x, y + size * 0.75, x, y + size);
-                ctx.bezierCurveTo(x, y + size * 0.75, x + size / 2, y + size / 2, x + size / 2, y + size / 4);
-                ctx.bezierCurveTo(x + size / 2, y, x, y, x, y + size / 4);
+                for (let i = 0; i < 5; i++) {
+                    const angle = (i * 4 * Math.PI / 5) - Math.PI / 2;
+                    const px = x + Math.cos(angle) * size;
+                    const py = y + Math.sin(angle) * size;
+                    if (i === 0) ctx.moveTo(px, py);
+                    else ctx.lineTo(px, py);
+                }
+                ctx.closePath();
                 ctx.fill();
+            }
+
+            drawPenlight(x, y) {
+                // Penlight stick
+                ctx.fillStyle = '#333';
+                ctx.fillRect(x - 2, y, 4, 25);
+
+                // Glowing top (animated color)
+                const glowColors = ['#ff69b4', '#00ffff', '#ffff00', '#ff6b6b', '#98fb98'];
+                const colorIndex = Math.floor(Date.now() / 200) % glowColors.length;
+                ctx.fillStyle = glowColors[colorIndex];
+                ctx.beginPath();
+                ctx.arc(x, y, 8, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Glow effect
+                ctx.fillStyle = glowColors[colorIndex] + '44';
+                ctx.beginPath();
+                ctx.arc(x, y, 12, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            drawUchiwa(x, y) {
+                // Fan handle
+                ctx.fillStyle = '#8B4513';
+                ctx.fillRect(x - 2, y + 10, 4, 20);
+
+                // Fan face (heart shape for idol fan)
+                ctx.fillStyle = '#ff69b4';
+                ctx.beginPath();
+                const size = 18;
+                ctx.moveTo(x, y + size / 4);
+                ctx.bezierCurveTo(x, y - size/3, x - size, y - size/3, x - size, y + size / 4);
+                ctx.bezierCurveTo(x - size, y + size, x, y + size * 1.2, x, y + size * 1.2);
+                ctx.bezierCurveTo(x, y + size * 1.2, x + size, y + size, x + size, y + size / 4);
+                ctx.bezierCurveTo(x + size, y - size/3, x, y - size/3, x, y + size / 4);
+                ctx.fill();
+
+                // Heart decoration
+                ctx.fillStyle = '#fff';
+                ctx.font = '10px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('♥', x, y + 8);
+                ctx.textAlign = 'left';
+            }
+
+            drawSmartphone(x, y) {
+                // Phone body
+                ctx.fillStyle = '#222';
+                ctx.fillRect(x - 8, y - 15, 16, 28);
+
+                // Screen
+                ctx.fillStyle = '#4a90d9';
+                ctx.fillRect(x - 6, y - 12, 12, 20);
+
+                // Angry text lines on screen
+                ctx.fillStyle = '#ff4444';
+                ctx.fillRect(x - 4, y - 8, 8, 2);
+                ctx.fillRect(x - 4, y - 4, 6, 2);
+                ctx.fillRect(x - 4, y, 7, 2);
+
+                // Typing indicator
+                ctx.fillStyle = '#fff';
+                ctx.font = '6px Arial';
+                ctx.fillText('...', x - 3, y + 6);
             }
         }
 
@@ -734,22 +814,22 @@
 
             // NPC positions based on plan.md layout
             const npcPositions = [
-                // Female NPCs (5)
-                { x: 100, y: 80, female: true },
-                { x: 500, y: 80, female: true },
-                { x: 100, y: 300, female: true },
-                { x: 300, y: 450, female: true },
-                { x: 500, y: 520, female: true },
-                // Male NPCs (5)
-                { x: 300, y: 80, female: false },
-                { x: 700, y: 150, female: false },
-                { x: 400, y: 250, female: false },
-                { x: 700, y: 300, female: false },
-                { x: 700, y: 520, female: false },
+                // Fan NPCs (5)
+                { x: 100, y: 80, fan: true },
+                { x: 500, y: 80, fan: true },
+                { x: 100, y: 300, fan: true },
+                { x: 300, y: 450, fan: true },
+                { x: 500, y: 520, fan: true },
+                // Anti NPCs (5)
+                { x: 300, y: 80, fan: false },
+                { x: 700, y: 150, fan: false },
+                { x: 400, y: 250, fan: false },
+                { x: 700, y: 300, fan: false },
+                { x: 700, y: 520, fan: false },
             ];
 
             npcPositions.forEach(pos => {
-                npcs.push(new NPC(pos.x, pos.y, pos.female));
+                npcs.push(new NPC(pos.x, pos.y, pos.fan));
             });
         }
 
@@ -784,7 +864,7 @@
             if (timer <= 0) {
                 timer = 0;
                 gameState = 'clear';
-                showOverlay('CLEAR!', 'おめでとう!<br>60秒生き残った!<br>モテすぎて困る...', '#44ff44');
+                showOverlay('CLEAR!', 'おめでとう!<br>60秒生き残った!<br>人気者はつらいよ...', '#44ff44');
                 return;
             }
 
