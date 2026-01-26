@@ -55,29 +55,19 @@ class Game {
         const container = this.canvas.parentElement;
         const containerRect = container.getBoundingClientRect();
 
-        // UIの高さを考慮（約50px）
-        const uiHeight = 50;
+        // UIの高さを取得
+        const gameUI = document.getElementById('game-ui');
+        const uiHeight = gameUI ? gameUI.getBoundingClientRect().height : 45;
+
         const availableWidth = containerRect.width;
         const availableHeight = containerRect.height - uiHeight;
 
-        // アスペクト比を維持しながらサイズ調整
-        const baseWidth = CONFIG.CANVAS_WIDTH;
-        const baseHeight = CONFIG.CANVAS_HEIGHT;
-        const aspectRatio = baseWidth / baseHeight;
-
-        let width, height;
-        if (availableWidth / availableHeight > aspectRatio) {
-            height = availableHeight;
-            width = height * aspectRatio;
-        } else {
-            width = availableWidth;
-            height = width / aspectRatio;
-        }
+        // 利用可能な領域全体を使用
+        const width = Math.max(availableWidth, 300);
+        const height = Math.max(availableHeight, 200);
 
         this.canvas.width = Math.floor(width);
         this.canvas.height = Math.floor(height);
-        this.canvas.style.width = `${Math.floor(width)}px`;
-        this.canvas.style.height = `${Math.floor(height)}px`;
 
         // スケール比率を更新
         this.scaleX = this.canvas.width / CONFIG.CANVAS_WIDTH;
