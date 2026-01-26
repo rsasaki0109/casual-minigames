@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>イケメンサバイバル〜バレンタインの試練〜</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+        }
+        #gameContainer {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #gameCanvas {
+            border: 4px solid #ff6b9d;
+            border-radius: 8px;
+            box-shadow: 0 0 30px rgba(255, 107, 157, 0.5);
+        }
+        #ui {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            pointer-events: none;
+        }
+        .stat-container {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 15px;
+            border-radius: 8px;
+            color: white;
+        }
+        .stat-label {
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+        .stat-bar {
+            width: 150px;
+            height: 20px;
+            background: #333;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        #hpBar {
+            height: 100%;
+            background: linear-gradient(90deg, #ff4444, #ff6666);
+            transition: width 0.3s;
+        }
+        #expBar {
+            height: 100%;
+            background: linear-gradient(90deg, #44ff44, #88ff88);
+            transition: width 0.3s;
+        }
+        #levelDisplay {
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffd700;
+        }
+        #timerDisplay {
+            font-size: 24px;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 0 10px #ff6b9d;
+        }
+        #overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            border-radius: 8px;
+        }
+        #overlay.hidden {
+            display: none;
+        }
+        #overlayTitle {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px currentColor;
+        }
+        #overlayMessage {
+            font-size: 18px;
+            margin-bottom: 30px;
+            text-align: center;
+            line-height: 1.6;
+        }
+        #retryBtn {
+            padding: 15px 40px;
+            font-size: 20px;
+            background: linear-gradient(135deg, #ff6b9d 0%, #ff8fab 100%);
+            border: none;
+            border-radius: 30px;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            pointer-events: auto;
+        }
+        #retryBtn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 107, 157, 0.7);
+        }
+        .title-screen {
+            text-align: center;
+        }
+        .title-screen h1 {
+            font-size: 28px;
+            color: #ff6b9d;
+            margin-bottom: 10px;
+        }
+        .title-screen p {
+            font-size: 14px;
+            color: #aaa;
+            margin-bottom: 20px;
+        }
+        .instructions {
+            font-size: 12px;
+            color: #888;
+            margin-top: 20px;
+        }
+        #damageFlash {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 0, 0, 0.5);
+            border-radius: 8px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.1s;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        <div id="ui">
+            <div class="stat-container">
+                <div class="stat-label">HP</div>
+                <div class="stat-bar"><div id="hpBar" style="width: 100%"></div></div>
+                <div class="stat-label" style="margin-top: 10px;">EXP</div>
+                <div class="stat-bar"><div id="expBar" style="width: 0%"></div></div>
+                <div id="levelDisplay" style="margin-top: 5px;">Lv. 1</div>
+            </div>
+            <div class="stat-container">
+                <div id="timerDisplay">60</div>
+            </div>
+        </div>
+        <div id="damageFlash"></div>
+        <div id="overlay">
+            <div class="title-screen">
+                <h1>イケメンサバイバル</h1>
+                <p>〜バレンタインの試練〜</p>
+            </div>
+            <div id="overlayMessage">
+                あなたはモテすぎて困っているイケメン!<br>
+                女子からのチョコを集めてレベルアップしよう。<br>
+                でも気をつけろ...嫉妬した男子たちが石を投げてくるぞ!<br><br>
+                <strong>60秒生き残るか、Lv.5に到達すればクリア!</strong>
+            </div>
+            <button id="retryBtn">START</button>
+            <div class="instructions">操作: WASD / 矢印キーで移動</div>
+        </div>
+    </div>
+
+    <script>
+        // ===== Game Constants =====
+        const CANVAS_WIDTH = 800;
+        const CANVAS_HEIGHT = 600;
+        const PLAYER_SIZE = 30;
+        const PLAYER_SPEED = 4;
+        const NPC_SIZE = 35;
+
+        // HP/EXP
+        const INITIAL_HP = 100;
+        const STONE_DAMAGE = 25;
+        const CHOCO_EXP = 25;
+        const LEVEL_THRESHOLDS = [0, 50, 150, 300, 500]; // Lv1-5
+        const MAX_LEVEL = 5;
+
+        // Projectiles
+        const CHOCO_SIZE = 20;
+        const STONE_SIZE = 15;
+        const CHOCO_SPEED = 5;
+        const STONE_SPEED = 6;
+
+        // NPC Behavior
+        const FEMALE_THROW_INTERVAL = 3000; // 3 seconds
+        const MALE_THROW_INTERVAL = 2000;   // 2 seconds
+
+        // Game
+        const GAME_DURATION = 60; // seconds
+
+        // ===== Game State =====
+        let canvas, ctx;
+        let gameState = 'title'; // 'title', 'playing', 'gameover', 'clear'
+        let player = null;
+        let npcs = [];
+        let projectiles = [];
+        let floatingTexts = [];
+        let timer = GAME_DURATION;
+        let lastTime = 0;
+        let keys = {};
+
+        // ===== Player Class =====
+        class Player {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.size = PLAYER_SIZE;
+                this.hp = INITIAL_HP;
+                this.exp = 0;
+                this.level = 1;
+            }
+
+            update() {
+                let dx = 0, dy = 0;
+                if (keys['KeyW'] || keys['ArrowUp']) dy -= PLAYER_SPEED;
+                if (keys['KeyS'] || keys['ArrowDown']) dy += PLAYER_SPEED;
+                if (keys['KeyA'] || keys['ArrowLeft']) dx -= PLAYER_SPEED;
+                if (keys['KeyD'] || keys['ArrowRight']) dx += PLAYER_SPEED;
+
+                // Normalize diagonal movement
+                if (dx !== 0 && dy !== 0) {
+                    dx *= 0.707;
+                    dy *= 0.707;
+                }
+
+                this.x = Math.max(this.size, Math.min(CANVAS_WIDTH - this.size, this.x + dx));
+                this.y = Math.max(this.size, Math.min(CANVAS_HEIGHT - this.size, this.y + dy));
+            }
+
+            draw() {
+                // Body
+                ctx.fillStyle = '#ffcc99';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Face
+                ctx.fillStyle = '#333';
+                // Eyes
+                ctx.beginPath();
+                ctx.arc(this.x - 8, this.y - 5, 4, 0, Math.PI * 2);
+                ctx.arc(this.x + 8, this.y - 5, 4, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Smile
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y + 2, 10, 0.1 * Math.PI, 0.9 * Math.PI);
+                ctx.stroke();
+
+                // Hair (sparkly for ikemen)
+                ctx.fillStyle = '#4a3728';
+                ctx.beginPath();
+                ctx.ellipse(this.x, this.y - this.size + 5, 25, 15, 0, Math.PI, 0);
+                ctx.fill();
+
+                // Level stars
+                this.drawLevelIndicator();
+            }
+
+            drawLevelIndicator() {
+                const starCount = this.level - 1;
+                if (starCount <= 0) return;
+
+                if (this.level === MAX_LEVEL) {
+                    // Crown for max level
+                    ctx.fillStyle = '#ffd700';
+                    ctx.beginPath();
+                    ctx.moveTo(this.x - 15, this.y - this.size - 10);
+                    ctx.lineTo(this.x - 10, this.y - this.size - 25);
+                    ctx.lineTo(this.x - 5, this.y - this.size - 15);
+                    ctx.lineTo(this.x, this.y - this.size - 30);
+                    ctx.lineTo(this.x + 5, this.y - this.size - 15);
+                    ctx.lineTo(this.x + 10, this.y - this.size - 25);
+                    ctx.lineTo(this.x + 15, this.y - this.size - 10);
+                    ctx.closePath();
+                    ctx.fill();
+                } else {
+                    // Stars
+                    for (let i = 0; i < starCount; i++) {
+                        const starX = this.x + (i - (starCount - 1) / 2) * 15;
+                        const starY = this.y - this.size - 20;
+                        this.drawStar(starX, starY, 6, '#ffd700');
+                    }
+                }
+            }
+
+            drawStar(x, y, size, color) {
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                for (let i = 0; i < 5; i++) {
+                    const angle = (i * 4 * Math.PI / 5) - Math.PI / 2;
+                    const px = x + Math.cos(angle) * size;
+                    const py = y + Math.sin(angle) * size;
+                    if (i === 0) ctx.moveTo(px, py);
+                    else ctx.lineTo(px, py);
+                }
+                ctx.closePath();
+                ctx.fill();
+            }
+
+            takeDamage(amount) {
+                this.hp = Math.max(0, this.hp - amount);
+                showDamageFlash();
+                addFloatingText(this.x, this.y - 30, `-${amount} HP`, '#ff4444');
+
+                if (this.hp <= 0) {
+                    gameState = 'gameover';
+                    showOverlay('GAME OVER', 'イケメンは倒れた...<br>石に当たりすぎだ!', '#ff4444');
+                }
+            }
+
+            gainExp(amount) {
+                this.exp += amount;
+                addFloatingText(this.x, this.y - 50, `+${amount} EXP`, '#44ff44');
+
+                // Check level up
+                while (this.level < MAX_LEVEL && this.exp >= LEVEL_THRESHOLDS[this.level]) {
+                    this.level++;
+                    addFloatingText(this.x, this.y - 70, `LEVEL UP!`, '#ffd700');
+
+                    if (this.level === MAX_LEVEL) {
+                        gameState = 'clear';
+                        showOverlay('CLEAR!', 'おめでとう!<br>Lv.5に到達した!<br>最強のイケメンだ!', '#44ff44');
+                    }
+                }
+            }
+        }
+
+        // ===== NPC Class =====
+        class NPC {
+            constructor(x, y, isFemale) {
+                this.x = x;
+                this.y = y;
+                this.size = NPC_SIZE;
+                this.isFemale = isFemale;
+                this.throwInterval = isFemale ? FEMALE_THROW_INTERVAL : MALE_THROW_INTERVAL;
+                this.lastThrowTime = Date.now() + Math.random() * this.throwInterval;
+            }
+
+            update() {
+                const now = Date.now();
+                if (now - this.lastThrowTime >= this.throwInterval) {
+                    this.throwProjectile();
+                    this.lastThrowTime = now;
+                }
+            }
+
+            throwProjectile() {
+                const dx = player.x - this.x;
+                const dy = player.y - this.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (this.isFemale) {
+                    // Chocolate - parabolic trajectory
+                    projectiles.push(new Chocolate(this.x, this.y, player.x, player.y));
+                } else {
+                    // Stone - straight line
+                    projectiles.push(new Stone(this.x, this.y, dx / dist, dy / dist));
+                }
+            }
+
+            draw() {
+                // Body
+                ctx.fillStyle = this.isFemale ? '#ffb6c1' : '#87ceeb';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Face
+                ctx.fillStyle = '#333';
+
+                if (this.isFemale) {
+                    // Happy eyes (hearts)
+                    ctx.fillStyle = '#ff69b4';
+                    this.drawHeart(this.x - 10, this.y - 5, 8);
+                    this.drawHeart(this.x + 10, this.y - 5, 8);
+
+                    // Smile
+                    ctx.strokeStyle = '#333';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y + 5, 8, 0.1 * Math.PI, 0.9 * Math.PI);
+                    ctx.stroke();
+
+                    // Hair ribbon
+                    ctx.fillStyle = '#ff69b4';
+                    ctx.beginPath();
+                    ctx.ellipse(this.x, this.y - this.size + 5, 10, 8, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                } else {
+                    // Angry eyes
+                    ctx.fillStyle = '#333';
+                    ctx.beginPath();
+                    ctx.arc(this.x - 10, this.y - 5, 4, 0, Math.PI * 2);
+                    ctx.arc(this.x + 10, this.y - 5, 4, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Angry eyebrows
+                    ctx.strokeStyle = '#333';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.moveTo(this.x - 15, this.y - 15);
+                    ctx.lineTo(this.x - 5, this.y - 10);
+                    ctx.moveTo(this.x + 15, this.y - 15);
+                    ctx.lineTo(this.x + 5, this.y - 10);
+                    ctx.stroke();
+
+                    // Frown
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y + 15, 8, 1.1 * Math.PI, 1.9 * Math.PI);
+                    ctx.stroke();
+
+                    // Anger mark
+                    ctx.fillStyle = '#ff4444';
+                    ctx.font = 'bold 16px Arial';
+                    ctx.fillText('💢', this.x + 15, this.y - 20);
+                }
+            }
+
+            drawHeart(x, y, size) {
+                ctx.beginPath();
+                ctx.moveTo(x, y + size / 4);
+                ctx.bezierCurveTo(x, y, x - size / 2, y, x - size / 2, y + size / 4);
+                ctx.bezierCurveTo(x - size / 2, y + size / 2, x, y + size * 0.75, x, y + size);
+                ctx.bezierCurveTo(x, y + size * 0.75, x + size / 2, y + size / 2, x + size / 2, y + size / 4);
+                ctx.bezierCurveTo(x + size / 2, y, x, y, x, y + size / 4);
+                ctx.fill();
+            }
+        }
+
+        // ===== Projectile Classes =====
+        class Chocolate {
+            constructor(x, y, targetX, targetY) {
+                this.x = x;
+                this.y = y;
+                this.size = CHOCO_SIZE;
+                this.targetX = targetX;
+                this.targetY = targetY;
+
+                // Calculate trajectory
+                const dx = targetX - x;
+                const dy = targetY - y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                const time = dist / (CHOCO_SPEED * 30);
+
+                this.vx = dx / time;
+                this.vy = dy / time - 0.5 * 0.5 * time; // Compensate for gravity
+                this.gravity = 0.5;
+                this.alive = true;
+                this.groundTime = 0;
+            }
+
+            update(dt) {
+                if (!this.alive) return;
+
+                this.vy += this.gravity;
+                this.x += this.vx * dt * 0.06;
+                this.y += this.vy * dt * 0.06;
+
+                // Ground collision
+                if (this.y > CANVAS_HEIGHT - this.size) {
+                    this.y = CANVAS_HEIGHT - this.size;
+                    this.vx = 0;
+                    this.vy = 0;
+                    this.groundTime += dt;
+                    if (this.groundTime > 3000) {
+                        this.alive = false;
+                    }
+                }
+
+                // Out of bounds
+                if (this.x < -50 || this.x > CANVAS_WIDTH + 50) {
+                    this.alive = false;
+                }
+
+                // Player collision
+                const dx = this.x - player.x;
+                const dy = this.y - player.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < this.size + player.size) {
+                    player.gainExp(CHOCO_EXP);
+                    this.alive = false;
+                    addSparkles(this.x, this.y);
+                }
+            }
+
+            draw() {
+                if (!this.alive) return;
+
+                // Heart-shaped chocolate box
+                ctx.fillStyle = '#ff69b4';
+                ctx.beginPath();
+                const x = this.x, y = this.y, size = this.size;
+                ctx.moveTo(x, y + size / 4);
+                ctx.bezierCurveTo(x, y, x - size / 2, y, x - size / 2, y + size / 4);
+                ctx.bezierCurveTo(x - size / 2, y + size / 2, x, y + size * 0.75, x, y + size);
+                ctx.bezierCurveTo(x, y + size * 0.75, x + size / 2, y + size / 2, x + size / 2, y + size / 4);
+                ctx.bezierCurveTo(x + size / 2, y, x, y, x, y + size / 4);
+                ctx.fill();
+
+                // Ribbon
+                ctx.fillStyle = '#ff1493';
+                ctx.beginPath();
+                ctx.ellipse(x, y + size / 3, size / 4, size / 6, 0, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        class Stone {
+            constructor(x, y, dx, dy) {
+                this.x = x;
+                this.y = y;
+                this.size = STONE_SIZE;
+                this.vx = dx * STONE_SPEED;
+                this.vy = dy * STONE_SPEED;
+                this.alive = true;
+            }
+
+            update(dt) {
+                if (!this.alive) return;
+
+                this.x += this.vx * dt * 0.06;
+                this.y += this.vy * dt * 0.06;
+
+                // Wall collision
+                if (this.x < 0 || this.x > CANVAS_WIDTH || this.y < 0 || this.y > CANVAS_HEIGHT) {
+                    this.alive = false;
+                }
+
+                // Player collision
+                const dx = this.x - player.x;
+                const dy = this.y - player.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < this.size + player.size) {
+                    player.takeDamage(STONE_DAMAGE);
+                    this.alive = false;
+                    addStars(this.x, this.y);
+                }
+            }
+
+            draw() {
+                if (!this.alive) return;
+
+                // Gray stone
+                ctx.fillStyle = '#666';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Texture
+                ctx.fillStyle = '#888';
+                ctx.beginPath();
+                ctx.arc(this.x - 3, this.y - 3, this.size / 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // ===== Floating Text =====
+        class FloatingText {
+            constructor(x, y, text, color) {
+                this.x = x;
+                this.y = y;
+                this.text = text;
+                this.color = color;
+                this.life = 1000;
+                this.age = 0;
+            }
+
+            update(dt) {
+                this.age += dt;
+                this.y -= 0.5;
+            }
+
+            draw() {
+                const alpha = 1 - this.age / this.life;
+                ctx.globalAlpha = alpha;
+                ctx.fillStyle = this.color;
+                ctx.font = 'bold 16px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(this.text, this.x, this.y);
+                ctx.globalAlpha = 1;
+            }
+
+            get alive() {
+                return this.age < this.life;
+            }
+        }
+
+        // ===== Particle Effects =====
+        let particles = [];
+
+        class Particle {
+            constructor(x, y, color, type) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                this.type = type;
+                this.vx = (Math.random() - 0.5) * 8;
+                this.vy = (Math.random() - 0.5) * 8 - 3;
+                this.life = 500;
+                this.age = 0;
+                this.size = Math.random() * 8 + 4;
+            }
+
+            update(dt) {
+                this.age += dt;
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy += 0.2;
+            }
+
+            draw() {
+                const alpha = 1 - this.age / this.life;
+                ctx.globalAlpha = alpha;
+                ctx.fillStyle = this.color;
+
+                if (this.type === 'star') {
+                    this.drawStar();
+                } else {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.globalAlpha = 1;
+            }
+
+            drawStar() {
+                ctx.beginPath();
+                for (let i = 0; i < 5; i++) {
+                    const angle = (i * 4 * Math.PI / 5) - Math.PI / 2;
+                    const px = this.x + Math.cos(angle) * this.size;
+                    const py = this.y + Math.sin(angle) * this.size;
+                    if (i === 0) ctx.moveTo(px, py);
+                    else ctx.lineTo(px, py);
+                }
+                ctx.closePath();
+                ctx.fill();
+            }
+
+            get alive() {
+                return this.age < this.life;
+            }
+        }
+
+        function addSparkles(x, y) {
+            for (let i = 0; i < 10; i++) {
+                particles.push(new Particle(x, y, '#ffd700', 'sparkle'));
+            }
+        }
+
+        function addStars(x, y) {
+            for (let i = 0; i < 6; i++) {
+                particles.push(new Particle(x, y, '#ffff00', 'star'));
+            }
+        }
+
+        function addFloatingText(x, y, text, color) {
+            floatingTexts.push(new FloatingText(x, y, text, color));
+        }
+
+        // ===== UI Functions =====
+        function updateUI() {
+            document.getElementById('hpBar').style.width = `${player.hp}%`;
+
+            const currentLevelExp = LEVEL_THRESHOLDS[player.level - 1] || 0;
+            const nextLevelExp = LEVEL_THRESHOLDS[player.level] || LEVEL_THRESHOLDS[MAX_LEVEL - 1];
+            const expProgress = ((player.exp - currentLevelExp) / (nextLevelExp - currentLevelExp)) * 100;
+            document.getElementById('expBar').style.width = `${Math.min(100, expProgress)}%`;
+
+            document.getElementById('levelDisplay').textContent = `Lv. ${player.level}`;
+            document.getElementById('timerDisplay').textContent = Math.ceil(timer);
+        }
+
+        function showDamageFlash() {
+            const flash = document.getElementById('damageFlash');
+            flash.style.opacity = '1';
+            setTimeout(() => flash.style.opacity = '0', 100);
+        }
+
+        function showOverlay(title, message, color) {
+            const overlay = document.getElementById('overlay');
+            const titleEl = document.getElementById('overlayTitle');
+            const messageEl = document.getElementById('overlayMessage');
+            const btn = document.getElementById('retryBtn');
+
+            overlay.classList.remove('hidden');
+            titleEl.textContent = title;
+            titleEl.style.color = color;
+            messageEl.innerHTML = message;
+            btn.textContent = 'RETRY';
+        }
+
+        function hideOverlay() {
+            document.getElementById('overlay').classList.add('hidden');
+        }
+
+        // ===== Game Setup =====
+        function initGame() {
+            player = new Player(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
+            npcs = [];
+            projectiles = [];
+            floatingTexts = [];
+            particles = [];
+            timer = GAME_DURATION;
+
+            // NPC positions based on plan.md layout
+            const npcPositions = [
+                // Female NPCs (5)
+                { x: 100, y: 80, female: true },
+                { x: 500, y: 80, female: true },
+                { x: 100, y: 300, female: true },
+                { x: 300, y: 450, female: true },
+                { x: 500, y: 520, female: true },
+                // Male NPCs (5)
+                { x: 300, y: 80, female: false },
+                { x: 700, y: 150, female: false },
+                { x: 400, y: 250, female: false },
+                { x: 700, y: 300, female: false },
+                { x: 700, y: 520, female: false },
+            ];
+
+            npcPositions.forEach(pos => {
+                npcs.push(new NPC(pos.x, pos.y, pos.female));
+            });
+        }
+
+        function startGame() {
+            initGame();
+            gameState = 'playing';
+            hideOverlay();
+            lastTime = performance.now();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // ===== Game Loop =====
+        function gameLoop(currentTime) {
+            const dt = currentTime - lastTime;
+            lastTime = currentTime;
+
+            if (gameState === 'playing') {
+                update(dt);
+                updateUI();
+            }
+
+            draw();
+
+            if (gameState === 'playing') {
+                requestAnimationFrame(gameLoop);
+            }
+        }
+
+        function update(dt) {
+            // Timer
+            timer -= dt / 1000;
+            if (timer <= 0) {
+                timer = 0;
+                gameState = 'clear';
+                showOverlay('CLEAR!', 'おめでとう!<br>60秒生き残った!<br>モテすぎて困る...', '#44ff44');
+                return;
+            }
+
+            // Player
+            player.update();
+
+            // NPCs
+            npcs.forEach(npc => npc.update());
+
+            // Projectiles
+            projectiles.forEach(p => p.update(dt));
+            projectiles = projectiles.filter(p => p.alive);
+
+            // Floating texts
+            floatingTexts.forEach(t => t.update(dt));
+            floatingTexts = floatingTexts.filter(t => t.alive);
+
+            // Particles
+            particles.forEach(p => p.update(dt));
+            particles = particles.filter(p => p.alive);
+        }
+
+        function draw() {
+            // Clear canvas
+            ctx.fillStyle = '#90EE90'; // Light green (school yard)
+            ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+            // Draw grass texture
+            ctx.fillStyle = '#82D982';
+            for (let i = 0; i < 50; i++) {
+                const x = (i * 37 + 10) % CANVAS_WIDTH;
+                const y = (i * 23 + 5) % CANVAS_HEIGHT;
+                ctx.fillRect(x, y, 3, 8);
+            }
+
+            // Draw border walls
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(0, 0, CANVAS_WIDTH, 10); // Top
+            ctx.fillRect(0, CANVAS_HEIGHT - 10, CANVAS_WIDTH, 10); // Bottom
+            ctx.fillRect(0, 0, 10, CANVAS_HEIGHT); // Left
+            ctx.fillRect(CANVAS_WIDTH - 10, 0, 10, CANVAS_HEIGHT); // Right
+
+            // Draw NPCs
+            npcs.forEach(npc => npc.draw());
+
+            // Draw projectiles
+            projectiles.forEach(p => p.draw());
+
+            // Draw player
+            if (player) player.draw();
+
+            // Draw particles
+            particles.forEach(p => p.draw());
+
+            // Draw floating texts
+            floatingTexts.forEach(t => t.draw());
+        }
+
+        // ===== Event Listeners =====
+        function init() {
+            canvas = document.getElementById('gameCanvas');
+            ctx = canvas.getContext('2d');
+
+            // Keyboard input
+            window.addEventListener('keydown', (e) => {
+                keys[e.code] = true;
+                if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) {
+                    e.preventDefault();
+                }
+            });
+
+            window.addEventListener('keyup', (e) => {
+                keys[e.code] = false;
+            });
+
+            // Start/Retry button
+            document.getElementById('retryBtn').addEventListener('click', startGame);
+
+            // Initial draw
+            draw();
+        }
+
+        // Start
+        window.onload = init;
+    </script>
+</body>
+</html>
