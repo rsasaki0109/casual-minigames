@@ -1,44 +1,44 @@
-# 恵方を向いて、最後まで食べ切れチャレンジ
+# Ehomaki Eating Challenge
 
-節分の日に恵方巻を最後まで食べ切ることを目指すミニゲームです。
+A mini-game where you try to eat an entire ehomaki (fortune sushi roll) on Setsubun day.
 
-## ゲーム概要
+## Game Overview
 
-プレイヤーは恵方巻を手に持ち、恵方（2025年は西南西）を向いて黙って食べ切ることを目指します。しかし、周囲から「恵方巻泥棒」たちが次々と現れ、プレイヤーの恵方巻を奪おうとします。
+On Setsubun (Japanese bean-throwing festival), the player holds an ehomaki and tries to eat it all while facing the lucky direction (Eho - West-Southwest in 2025) in silence. However, "ehomaki thieves" appear from all directions trying to steal your ehomaki.
 
-恵方巻を食べ進めながら、迫りくる泥棒たちを「にらみ」で撃退し、恵方巻を最後まで食べ切ればクリアです。
+Defeat the approaching thieves with your "glare" attack while eating the ehomaki. Finish eating it all to clear the game!
 
-## 遊び方
+## How to Play
 
-- 恵方巻は自動で食べ進められます（60秒でクリア）
-- 四方から現れる「恵方巻泥棒」を撃退しましょう
-- マウスを動かして「にらみ」の方向を決めます
-- クリックまたはスペースキーで「にらみ」を発動
-- 泥棒に触れられたらゲームオーバー
+- The ehomaki is eaten automatically (60 seconds to clear)
+- Defeat "ehomaki thieves" appearing from all directions
+- Move your mouse/finger to aim your "glare" direction
+- Click or tap to activate the "glare" attack
+- Game over if a thief touches you
 
-## 操作方法
+## Controls
 
-| 操作 | 入力方法 |
-|------|----------|
-| にらみの方向 | マウス移動 |
-| にらみ発動 | 左クリック / スペースキー |
-| 一時停止 | Escキー |
-| リトライ | Rキー（リザルト画面のみ） |
+| Action | Input |
+|--------|-------|
+| Aim glare | Mouse movement / Touch drag |
+| Activate glare | Left click / Tap / Space key |
+| Pause | Esc key |
+| Retry | R key (result screen only) |
 
-## スコアシステム
+## Scoring System
 
-- 泥棒撃退: 100点 × 倍率
-- 恵方巻を1%食べる: 50点
-- クリアボーナス: 5000点
-- 2秒以内に連続撃退で倍率アップ（最大5倍）
+- Defeat thief: 100 points × multiplier
+- Eat 1% of ehomaki: 50 points
+- Clear bonus: 5,000 points
+- Consecutive defeats within 2 seconds increase multiplier (up to 5x)
 
-## 技術構成
+## Tech Stack
 
 - HTML5 / CSS3 / JavaScript (ES6+)
 - Canvas API
-- LocalStorage API（ハイスコア保存）
+- LocalStorage API (high score persistence)
 
-## ファイル構成
+## File Structure
 
 ```
 ehomaki_eating_challenge/
@@ -56,12 +56,12 @@ ehomaki_eating_challenge/
     └── images/
 ```
 
-## プレイ方法
+## Play
 
-ブラウザで `index.html` を開くとゲームが開始できます。
+Open `index.html` in a browser to start the game.
 
 GitHub Pages: https://rsasaki0109.github.io/ehomaki_eating_challenge/
 
-## ライセンス
+## License
 
 MIT License

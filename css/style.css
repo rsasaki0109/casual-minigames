@@ -4,10 +4,16 @@
     box-sizing: border-box;
 }
 
+html, body {
+    height: 100%;
+    overflow: hidden;
+}
+
 body {
     font-family: 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
     background: linear-gradient(135deg, #2d1b0e 0%, #4a2c17 100%);
     min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -16,8 +22,12 @@ body {
 
 #game-container {
     position: relative;
-    width: 800px;
-    height: 600px;
+    width: min(800px, 100vw);
+    height: min(600px, 100vh, 100dvh);
+    max-width: 100vw;
+    max-height: 100vh;
+    max-height: 100dvh;
+    aspect-ratio: 4 / 3;
     background: #3d2414;
     border-radius: 10px;
     overflow: hidden;
@@ -324,19 +334,86 @@ body {
 }
 
 /* レスポンシブ対応 */
-@media (max-width: 850px) {
+@media (max-width: 850px), (max-height: 650px) {
     #game-container {
         width: 100vw;
-        height: 75vw;
+        height: 100vh;
+        height: 100dvh;
         max-height: 100vh;
+        max-height: 100dvh;
+        aspect-ratio: auto;
         border-radius: 0;
     }
 
     .title {
-        font-size: 1.8rem;
+        font-size: 1.5rem;
+        padding: 0 10px;
     }
 
     .eho-info {
-        font-size: 1.1rem;
+        font-size: 1rem;
+        margin-bottom: 15px;
+    }
+
+    .highscore-display {
+        font-size: 1rem;
+        margin-bottom: 15px;
+    }
+
+    .btn {
+        font-size: 1rem;
+        padding: 12px 30px;
+        margin: 5px;
+    }
+
+    #game-ui {
+        padding: 5px 10px;
+    }
+
+    .score-display {
+        font-size: 1rem;
+    }
+
+    .combo-display {
+        font-size: 0.8rem;
+    }
+
+    .gauge-bar {
+        height: 15px;
+    }
+
+    .gauge-label {
+        font-size: 0.9rem;
+    }
+
+    .modal-content {
+        padding: 20px;
+        margin: 10px;
+        max-height: 90vh;
+        max-height: 90dvh;
+        overflow-y: auto;
+    }
+
+    .howto-list li {
+        font-size: 0.9rem;
+        padding: 5px 0;
+        padding-left: 20px;
+    }
+
+    .controls-table td {
+        font-size: 0.85rem;
+        padding: 5px;
+    }
+
+    .result-title {
+        font-size: 2rem;
+    }
+
+    .final-score {
+        font-size: 1.5rem;
+    }
+
+    .stats {
+        font-size: 1rem;
     }
 }
