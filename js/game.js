@@ -46,7 +46,8 @@ class Game {
         // イベントリスナーの設定
         this.setupEventListeners();
 
-        // 初期画面表示
+        // 初期画面表示（明示的にタイトル画面を表示）
+        this.ui.showScreen('title');
         this.ui.updateTitleHighscore(Utils.loadHighScore());
     }
 
