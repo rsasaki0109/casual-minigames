@@ -1,68 +1,48 @@
 # Ehomaki Eating Challenge
 
-A mini-game where you try to eat an entire ehomaki (fortune sushi roll) on Setsubun day.
+恵方を向いて、最後まで食べ切れチャレンジ！
 
 ![Demo](demo.gif)
 
-## Game Overview
+## ゲーム概要
 
-On Setsubun (Japanese bean-throwing festival), the player holds an ehomaki and tries to eat it all while facing the lucky direction (Eho - West-Southwest in 2025) in silence. However, "ehomaki thieves" appear from all directions trying to steal your ehomaki.
+節分の日、恵方巻を恵方（2025年は西南西）を向いて黙々と食べようとするあなた。しかし「恵方巻泥棒」が四方から恵方巻を奪いに来ます！
 
-Defeat the approaching thieves with your "glare" attack while eating the ehomaki. Finish eating it all to clear the game!
+**にらみ**で泥棒を撃退しながら、恵方巻を食べ切ろう！
 
-## How to Play
+## 遊び方
 
-- The ehomaki is eaten automatically (60 seconds to clear)
-- Defeat "ehomaki thieves" appearing from all directions
-- Move your mouse/finger to aim your "glare" direction
-- Click or tap to activate the "glare" attack
-- Game over if a thief touches you
+- 恵方巻は自動で食べ進む（60秒でクリア）
+- マウスを動かして「にらみ」の方向を変える
+- にらみは常時発動！方向を合わせるだけで泥棒を撃退
+- **恵方（西南西）を向くとボーナスポイント！**
+- 泥棒に触れられたらゲームオーバー
 
-## Controls
+## 操作方法
 
-| Action | Input |
-|--------|-------|
-| Aim glare | Mouse movement / Touch drag |
-| Activate glare | Left click / Tap / Space key |
-| Pause | Esc key |
-| Retry | R key (result screen only) |
+| 操作 | 入力 |
+|------|------|
+| にらみの方向 | マウス移動 |
+| 一時停止 | Escキー |
+| リトライ | Rキー（リザルト画面） |
 
-## Scoring System
+## スコア
 
-- Defeat thief: 100 points × multiplier
-- Eat 1% of ehomaki: 50 points
-- Clear bonus: 5,000 points
-- Consecutive defeats within 2 seconds increase multiplier (up to 5x)
+- 泥棒撃退: 100点 × 倍率
+- 恵方を向いている間: 30点/秒
+- 恵方巻1%食べる: 50点
+- クリアボーナス: 5,000点
+- 連続撃退で倍率アップ（最大5倍）
+
+## Play
+
+**GitHub Pages:** https://rsasaki0109.github.io/ehomaki_eating_challenge/
 
 ## Tech Stack
 
 - HTML5 / CSS3 / JavaScript (ES6+)
 - Canvas API
-- LocalStorage API (high score persistence)
-
-## File Structure
-
-```
-ehomaki_eating_challenge/
-├── index.html
-├── css/
-│   └── style.css
-├── js/
-│   ├── main.js
-│   ├── game.js
-│   ├── player.js
-│   ├── enemy.js
-│   ├── ui.js
-│   └── utils.js
-└── assets/
-    └── images/
-```
-
-## Play
-
-Open `index.html` in a browser to start the game.
-
-GitHub Pages: https://rsasaki0109.github.io/ehomaki_eating_challenge/
+- LocalStorage API
 
 ## License
 
