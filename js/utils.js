@@ -12,6 +12,11 @@ const CONFIG = {
     PLAYER_RADIUS: 20,           // プレイヤーの当たり判定半径
     ENEMY_RADIUS: 30,            // 泥棒の当たり判定半径
 
+    // 恵方設定
+    EHO_DIRECTION: 247.5,        // 2025年の恵方：西南西（度）
+    EHO_TOLERANCE: 30,           // 恵方と判定される許容角度（±度）
+    SCORE_EHO_PER_SEC: 30,       // 恵方を向いている間の1秒あたりのスコア
+
     // スコア設定
     SCORE_ENEMY_DEFEAT: 100,     // 泥棒撃退時の基本スコア
     SCORE_EATING: 50,            // 恵方巻1%食べるごとのスコア
