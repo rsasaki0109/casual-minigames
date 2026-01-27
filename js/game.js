@@ -52,31 +52,43 @@ class Game {
 
     // Canvasサイズをコンテナに合わせてリサイズ
     resizeCanvas() {
+        // 内部解像度は固定（ゲームロジックはこの座標系で動作）
+        this.canvas.width = CONFIG.CANVAS_WIDTH;
+        this.canvas.height = CONFIG.CANVAS_HEIGHT;
+
+        // 表示サイズはコンテナに合わせる（CSSでスケール）
         const container = this.canvas.parentElement;
         const containerRect = container.getBoundingClientRect();
 
-        // UIの高さを取得
         const gameUI = document.getElementById('game-ui');
         const uiHeight = gameUI ? gameUI.getBoundingClientRect().height : 45;
 
         const availableWidth = containerRect.width;
         const availableHeight = containerRect.height - uiHeight;
 
-        // 利用可能な領域全体を使用
-        const width = Math.max(availableWidth, 300);
-        const height = Math.max(availableHeight, 200);
+        // アスペクト比を維持してフィット
+        const aspectRatio = CONFIG.CANVAS_WIDTH / CONFIG.CANVAS_HEIGHT;
+        let displayWidth, displayHeight;
 
-        this.canvas.width = Math.floor(width);
-        this.canvas.height = Math.floor(height);
+        if (availableWidth / availableHeight > aspectRatio) {
+            displayHeight = availableHeight;
+            displayWidth = displayHeight * aspectRatio;
+        } else {
+            displayWidth = availableWidth;
+            displayHeight = displayWidth / aspectRatio;
+        }
 
-        // スケール比率を更新
-        this.scaleX = this.canvas.width / CONFIG.CANVAS_WIDTH;
-        this.scaleY = this.canvas.height / CONFIG.CANVAS_HEIGHT;
+        this.canvas.style.width = `${Math.floor(displayWidth)}px`;
+        this.canvas.style.height = `${Math.floor(displayHeight)}px`;
+
+        // スケール比率を更新（座標変換用）
+        this.scaleX = displayWidth / CONFIG.CANVAS_WIDTH;
+        this.scaleY = displayHeight / CONFIG.CANVAS_HEIGHT;
     }
 
     // 背景を更新
     updateBackground() {
-        this.background = new Background(this.canvas.width, this.canvas.height);
+        this.background = new Background(CONFIG.CANVAS_WIDTH, CONFIG.CANVAS_HEIGHT);
     }
 
     // イベントリスナーの設定
@@ -149,15 +161,6 @@ class Game {
         window.addEventListener('resize', () => {
             this.resizeCanvas();
             this.updateBackground();
-            if (this.player) {
-                this.player.x = this.canvas.width / 2;
-                this.player.y = this.canvas.height / 2;
-            }
-            if (this.enemyManager) {
-                this.enemyManager.canvasWidth = this.canvas.width;
-                this.enemyManager.canvasHeight = this.canvas.height;
-                this.enemyManager.updatePlayerPosition(this.canvas.width / 2, this.canvas.height / 2);
-            }
         });
 
         // UIボタン
@@ -185,15 +188,15 @@ class Game {
         this.enemiesDefeated = 0;
         this.lastEatingPercent = 100;
 
-        // プレイヤーを中央に配置
-        const playerX = this.canvas.width / 2;
-        const playerY = this.canvas.height / 2;
+        // プレイヤーを中央に配置（固定座標系）
+        const playerX = CONFIG.CANVAS_WIDTH / 2;
+        const playerY = CONFIG.CANVAS_HEIGHT / 2;
         this.player = new Player(playerX, playerY);
 
-        // 敵マネージャーの初期化
+        // 敵マネージャーの初期化（固定座標系）
         this.enemyManager = new EnemyManager(
-            this.canvas.width,
-            this.canvas.height,
+            CONFIG.CANVAS_WIDTH,
+            CONFIG.CANVAS_HEIGHT,
             playerX,
             playerY
         );
