@@ -1,7 +1,7 @@
 # アイドルサバイバル〜バレンタインの試練〜
 ## Idol Survival: Valentine's Trial
 
-![Gameplay](gameplay.gif)
+![Gameplay](assets/screenshots/gameplay.gif)
 
 あなたは人気すぎて大変なアイドル!
 ファンからのチョコを集めてレベルアップしよう。
