@@ -190,9 +190,37 @@
         // ===== Game Constants =====
         const CANVAS_WIDTH = 800;
         const CANVAS_HEIGHT = 600;
-        const PLAYER_SIZE = 30;
+        const PLAYER_SIZE = 40;
         const PLAYER_SPEED = 4;
-        const NPC_SIZE = 35;
+        const NPC_SIZE = 45;
+
+        // ===== Image Assets =====
+        const images = {
+            idol: new Image(),
+            fan: new Image(),
+            anti: new Image(),
+            background: new Image()
+        };
+        let imagesLoaded = 0;
+        const totalImages = 4;
+
+        function loadImages() {
+            return new Promise((resolve) => {
+                const onLoad = () => {
+                    imagesLoaded++;
+                    if (imagesLoaded >= totalImages) resolve();
+                };
+                images.idol.onload = onLoad;
+                images.fan.onload = onLoad;
+                images.anti.onload = onLoad;
+                images.background.onload = onLoad;
+
+                images.idol.src = 'assets/characters/idle.png';
+                images.fan.src = 'assets/characters/fan.png';
+                images.anti.src = 'assets/characters/anti.png';
+                images.background.src = 'assets/backgrounds/background.png';
+            });
+        }
 
         // HP/EXP
         const INITIAL_HP = 100;
@@ -254,32 +282,15 @@
             }
 
             draw() {
-                // Body
-                ctx.fillStyle = '#ffcc99';
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
-
-                // Face
-                ctx.fillStyle = '#333';
-                // Eyes
-                ctx.beginPath();
-                ctx.arc(this.x - 8, this.y - 5, 4, 0, Math.PI * 2);
-                ctx.arc(this.x + 8, this.y - 5, 4, 0, Math.PI * 2);
-                ctx.fill();
-
-                // Smile
-                ctx.strokeStyle = '#333';
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y + 2, 10, 0.1 * Math.PI, 0.9 * Math.PI);
-                ctx.stroke();
-
-                // Hair (sparkly for idol)
-                ctx.fillStyle = '#4a3728';
-                ctx.beginPath();
-                ctx.ellipse(this.x, this.y - this.size + 5, 25, 15, 0, Math.PI, 0);
-                ctx.fill();
+                // Draw character image
+                const imgSize = this.size * 2.5;
+                ctx.drawImage(
+                    images.idol,
+                    this.x - imgSize / 2,
+                    this.y - imgSize / 2,
+                    imgSize,
+                    imgSize
+                );
 
                 // Level stars
                 this.drawLevelIndicator();
@@ -395,67 +406,16 @@
             }
 
             draw() {
-                // Body
-                ctx.fillStyle = this.color;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
-
-                // Face
-                ctx.fillStyle = '#333';
-
-                if (this.isFan) {
-                    // Sparkly eyes
-                    ctx.fillStyle = '#FFD700';
-                    this.drawStar(this.x - 10, this.y - 5, 6);
-                    this.drawStar(this.x + 10, this.y - 5, 6);
-
-                    // Big smile with blush
-                    ctx.strokeStyle = '#333';
-                    ctx.lineWidth = 2;
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y + 5, 10, 0.1 * Math.PI, 0.9 * Math.PI);
-                    ctx.stroke();
-
-                    // Blush cheeks
-                    ctx.fillStyle = 'rgba(255, 150, 150, 0.5)';
-                    ctx.beginPath();
-                    ctx.ellipse(this.x - 18, this.y + 5, 6, 4, 0, 0, Math.PI * 2);
-                    ctx.ellipse(this.x + 18, this.y + 5, 6, 4, 0, 0, Math.PI * 2);
-                    ctx.fill();
-
-                    // Penlight (right hand)
-                    this.drawPenlight(this.x + 30, this.y - 15);
-
-                    // Uchiwa fan (left hand)
-                    this.drawUchiwa(this.x - 35, this.y + 5);
-                } else {
-                    // Smirking eyes (looking at phone)
-                    ctx.fillStyle = '#333';
-                    ctx.beginPath();
-                    ctx.arc(this.x - 8, this.y - 3, 3, 0, Math.PI * 2);
-                    ctx.arc(this.x + 8, this.y - 3, 3, 0, Math.PI * 2);
-                    ctx.fill();
-
-                    // Sneaky eyebrows
-                    ctx.strokeStyle = '#333';
-                    ctx.lineWidth = 2;
-                    ctx.beginPath();
-                    ctx.moveTo(this.x - 14, this.y - 12);
-                    ctx.lineTo(this.x - 4, this.y - 10);
-                    ctx.moveTo(this.x + 14, this.y - 12);
-                    ctx.lineTo(this.x + 4, this.y - 10);
-                    ctx.stroke();
-
-                    // Smirk
-                    ctx.beginPath();
-                    ctx.moveTo(this.x - 8, this.y + 10);
-                    ctx.quadraticCurveTo(this.x + 5, this.y + 8, this.x + 10, this.y + 14);
-                    ctx.stroke();
-
-                    // Smartphone in hand
-                    this.drawSmartphone(this.x + 25, this.y + 10);
-                }
+                // Draw character image
+                const img = this.isFan ? images.fan : images.anti;
+                const imgSize = this.size * 2.5;
+                ctx.drawImage(
+                    img,
+                    this.x - imgSize / 2,
+                    this.y - imgSize / 2,
+                    imgSize,
+                    imgSize
+                );
             }
 
             drawStar(x, y, size) {
@@ -888,24 +848,8 @@
         }
 
         function draw() {
-            // Clear canvas
-            ctx.fillStyle = '#90EE90'; // Light green (school yard)
-            ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-
-            // Draw grass texture
-            ctx.fillStyle = '#82D982';
-            for (let i = 0; i < 50; i++) {
-                const x = (i * 37 + 10) % CANVAS_WIDTH;
-                const y = (i * 23 + 5) % CANVAS_HEIGHT;
-                ctx.fillRect(x, y, 3, 8);
-            }
-
-            // Draw border walls
-            ctx.fillStyle = '#8B4513';
-            ctx.fillRect(0, 0, CANVAS_WIDTH, 10); // Top
-            ctx.fillRect(0, CANVAS_HEIGHT - 10, CANVAS_WIDTH, 10); // Bottom
-            ctx.fillRect(0, 0, 10, CANVAS_HEIGHT); // Left
-            ctx.fillRect(CANVAS_WIDTH - 10, 0, 10, CANVAS_HEIGHT); // Right
+            // Draw background image
+            ctx.drawImage(images.background, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
             // Draw NPCs
             npcs.forEach(npc => npc.draw());
@@ -924,9 +868,20 @@
         }
 
         // ===== Event Listeners =====
-        function init() {
+        async function init() {
             canvas = document.getElementById('gameCanvas');
             ctx = canvas.getContext('2d');
+
+            // Show loading message
+            ctx.fillStyle = '#1a1a2e';
+            ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+            ctx.fillStyle = '#fff';
+            ctx.font = '24px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Loading...', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
+
+            // Load images
+            await loadImages();
 
             // Keyboard input
             window.addEventListener('keydown', (e) => {
