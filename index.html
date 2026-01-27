@@ -91,6 +91,7 @@
             align-items: center;
             color: white;
             border-radius: 8px;
+            touch-action: auto;
         }
         #overlay.hidden {
             display: none;
@@ -117,6 +118,10 @@
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
             pointer-events: auto;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            -webkit-user-select: none;
         }
         #retryBtn:hover {
             transform: scale(1.05);
@@ -973,12 +978,27 @@
                 keys[e.code] = false;
             });
 
-            // Start/Retry button (support both click and touch)
+            // Start/Retry button (support click, touch, and pointer events)
             const retryBtn = document.getElementById('retryBtn');
-            retryBtn.addEventListener('click', startGame);
+            let btnTouched = false;
+
+            retryBtn.addEventListener('touchstart', (e) => {
+                btnTouched = true;
+            }, { passive: true });
+
             retryBtn.addEventListener('touchend', (e) => {
-                e.preventDefault();
-                startGame();
+                if (btnTouched) {
+                    e.preventDefault();
+                    btnTouched = false;
+                    startGame();
+                }
+            });
+
+            retryBtn.addEventListener('click', (e) => {
+                if (!btnTouched) { // Avoid double trigger on touch devices
+                    startGame();
+                }
+                btnTouched = false;
             });
 
             // ===== Virtual Joystick Setup =====
@@ -1027,10 +1047,11 @@
                 joystick.knob.style.transform = 'translate(-50%, -50%)';
             }
 
-            // Touch events
+            // Touch events for joystick only
             joystickContainer.addEventListener('touchstart', handleJoystickStart, { passive: false });
-            document.addEventListener('touchmove', handleJoystickMove, { passive: false });
-            document.addEventListener('touchend', handleJoystickEnd, { passive: false });
+            joystickContainer.addEventListener('touchmove', handleJoystickMove, { passive: false });
+            joystickContainer.addEventListener('touchend', handleJoystickEnd, { passive: false });
+            joystickContainer.addEventListener('touchcancel', handleJoystickEnd, { passive: false });
 
             // Mouse events (for testing on desktop)
             joystickContainer.addEventListener('mousedown', handleJoystickStart);
