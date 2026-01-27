@@ -75,41 +75,58 @@ class Player {
         this.drawEhomaki(ctx);
     }
 
-    // にらみ範囲の描画
+    // にらみ範囲の描画（目のビームっぽく）
     drawGlareRange(ctx) {
         const startAngle = this.glareAngle - this.glareWidth / 2;
         const endAngle = this.glareAngle + this.glareWidth / 2;
 
         ctx.save();
+
+        // グラデーションで光線っぽく
+        const gradient = ctx.createRadialGradient(
+            this.x, this.y, 0,
+            this.x, this.y, this.glareRange
+        );
+
+        if (this.isGlaring) {
+            // 発動時は強調（赤い目の光）
+            gradient.addColorStop(0, 'rgba(255, 100, 100, 0.8)');
+            gradient.addColorStop(0.3, 'rgba(255, 200, 50, 0.5)');
+            gradient.addColorStop(1, 'rgba(255, 255, 100, 0.1)');
+        } else {
+            // 通常時（常時にらみ中）
+            gradient.addColorStop(0, 'rgba(255, 200, 100, 0.6)');
+            gradient.addColorStop(0.3, 'rgba(255, 255, 100, 0.3)');
+            gradient.addColorStop(1, 'rgba(255, 255, 200, 0.05)');
+        }
+
         ctx.beginPath();
         ctx.moveTo(this.x, this.y);
         ctx.arc(this.x, this.y, this.glareRange, startAngle, endAngle);
         ctx.closePath();
-
-        if (this.isGlaring) {
-            // 発動時は強調
-            ctx.fillStyle = 'rgba(255, 255, 0, 0.5)';
-            ctx.strokeStyle = 'rgba(255, 200, 0, 0.9)';
-            ctx.lineWidth = 3;
-        } else {
-            // 通常時は薄く表示
-            ctx.fillStyle = 'rgba(255, 255, 200, 0.15)';
-            ctx.strokeStyle = 'rgba(255, 255, 200, 0.3)';
-            ctx.lineWidth = 2;
-        }
+        ctx.fillStyle = gradient;
         ctx.fill();
+
+        // 外枠（目の光線の輪郭）
+        ctx.strokeStyle = this.isGlaring ? 'rgba(255, 150, 50, 0.8)' : 'rgba(255, 220, 100, 0.4)';
+        ctx.lineWidth = this.isGlaring ? 3 : 2;
         ctx.stroke();
 
-        // クールダウン表示
-        if (this.glareCooldown > 0) {
-            const cooldownRatio = this.glareCooldown / CONFIG.GLARE_COOLDOWN;
-            ctx.beginPath();
-            ctx.moveTo(this.x, this.y);
-            ctx.arc(this.x, this.y, this.glareRange * 0.3, startAngle, startAngle + (endAngle - startAngle) * cooldownRatio);
-            ctx.closePath();
-            ctx.fillStyle = 'rgba(255, 100, 100, 0.4)';
-            ctx.fill();
-        }
+        // 中心から目の光線ライン（2本）
+        ctx.strokeStyle = 'rgba(255, 255, 200, 0.6)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(this.x, this.y);
+        ctx.lineTo(
+            this.x + Math.cos(startAngle + 0.1) * this.glareRange * 0.9,
+            this.y + Math.sin(startAngle + 0.1) * this.glareRange * 0.9
+        );
+        ctx.moveTo(this.x, this.y);
+        ctx.lineTo(
+            this.x + Math.cos(endAngle - 0.1) * this.glareRange * 0.9,
+            this.y + Math.sin(endAngle - 0.1) * this.glareRange * 0.9
+        );
+        ctx.stroke();
 
         ctx.restore();
     }

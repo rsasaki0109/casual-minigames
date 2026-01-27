@@ -2,6 +2,8 @@
 
 A mini-game where you try to eat an entire ehomaki (fortune sushi roll) on Setsubun day.
 
+![Demo](demo.gif)
+
 ## Game Overview
 
 On Setsubun (Japanese bean-throwing festival), the player holds an ehomaki and tries to eat it all while facing the lucky direction (Eho - West-Southwest in 2025) in silence. However, "ehomaki thieves" appear from all directions trying to steal your ehomaki.

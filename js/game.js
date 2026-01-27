@@ -188,6 +188,10 @@ class Game {
         this.lastDefeatTime = 0;
         this.enemiesDefeated = 0;
         this.lastEatingPercent = 100;
+        this.showTutorial = true;
+        this.tutorialTime = 3.0; // 3秒間表示
+        this.isFacingEho = false; // 恵方を向いているか
+        this.ehoAngleRad = Utils.degToRad(CONFIG.EHO_DIRECTION - 90); // 画面上の角度に変換
 
         // プレイヤーを中央に配置（固定座標系）
         const playerX = CONFIG.CANVAS_WIDTH / 2;
@@ -287,6 +291,14 @@ class Game {
     update(deltaTime) {
         this.elapsedTime += deltaTime;
 
+        // チュートリアル時間の更新
+        if (this.tutorialTime > 0) {
+            this.tutorialTime -= deltaTime;
+            if (this.tutorialTime <= 0) {
+                this.showTutorial = false;
+            }
+        }
+
         // コンボのリセット判定
         if (this.elapsedTime - this.lastDefeatTime > CONFIG.COMBO_TIME_LIMIT && this.combo > 1.0) {
             this.combo = 1.0;
@@ -296,6 +308,12 @@ class Game {
         // プレイヤー更新
         this.player.updateGlareDirection(this.mouseX, this.mouseY);
         this.player.update(deltaTime);
+
+        // 恵方を向いているかチェック
+        this.checkEhoDirection(deltaTime);
+
+        // にらみを常時発動（敵がいる場合）
+        this.handleGlare();
 
         // 食べた量でスコア加算
         const currentEatingPercent = this.player.ehomakiRemaining;
@@ -357,5 +375,130 @@ class Game {
 
         // スコアポップアップ描画
         this.ui.updateAndDrawPopups(this.ctx, 1 / 60);
+
+        // 恵方インジケーター描画
+        this.drawEhoIndicator();
+
+        // チュートリアル描画
+        if (this.showTutorial && this.tutorialTime > 0) {
+            this.drawTutorial();
+        }
+    }
+
+    // チュートリアル描画
+    drawTutorial() {
+        const ctx = this.ctx;
+        const alpha = Math.min(1, this.tutorialTime / 0.5); // フェードアウト
+
+        ctx.save();
+        ctx.globalAlpha = alpha;
+
+        // 背景
+        const boxWidth = 320;
+        const boxHeight = 90;
+        const boxX = (this.canvas.width - boxWidth) / 2;
+        const boxY = 80;
+
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
+        ctx.strokeStyle = '#ffd700';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.roundRect(boxX, boxY, boxWidth, boxHeight, 10);
+        ctx.fill();
+        ctx.stroke();
+
+        // テキスト
+        ctx.fillStyle = '#ffd700';
+        ctx.font = 'bold 20px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('👁 にらみで撃退！', this.canvas.width / 2, boxY + 30);
+
+        ctx.fillStyle = '#fff';
+        ctx.font = '14px sans-serif';
+        ctx.fillText('泥棒の方向を向いて撃退しよう', this.canvas.width / 2, boxY + 52);
+        ctx.fillStyle = '#ffa500';
+        ctx.fillText('恵方を向くとボーナス！', this.canvas.width / 2, boxY + 70);
+
+        ctx.restore();
+    }
+
+    // 恵方を向いているかチェック
+    checkEhoDirection(deltaTime) {
+        const playerAngleDeg = Utils.radToDeg(this.player.glareAngle);
+        const ehoDeg = CONFIG.EHO_DIRECTION - 90; // 画面座標系に変換
+
+        // 角度の差を計算（-180〜180の範囲に正規化）
+        let diff = playerAngleDeg - ehoDeg;
+        while (diff > 180) diff -= 360;
+        while (diff < -180) diff += 360;
+
+        this.isFacingEho = Math.abs(diff) <= CONFIG.EHO_TOLERANCE;
+
+        // 恵方を向いていたらスコア加算
+        if (this.isFacingEho) {
+            const ehoScore = Math.floor(CONFIG.SCORE_EHO_PER_SEC * deltaTime);
+            if (ehoScore > 0) {
+                this.score += ehoScore;
+                this.ui.updateScore(this.score);
+            }
+        }
+    }
+
+    // 恵方インジケーター描画
+    drawEhoIndicator() {
+        const ctx = this.ctx;
+        ctx.save();
+
+        // 恵方の方向を示す矢印（画面端）
+        const ehoAngle = Utils.degToRad(CONFIG.EHO_DIRECTION - 90);
+        const centerX = this.canvas.width / 2;
+        const centerY = this.canvas.height / 2;
+        const indicatorDist = Math.min(this.canvas.width, this.canvas.height) * 0.45;
+
+        const indicatorX = centerX + Math.cos(ehoAngle) * indicatorDist;
+        const indicatorY = centerY + Math.sin(ehoAngle) * indicatorDist;
+
+        // 恵方を向いているかで色を変える
+        if (this.isFacingEho) {
+            ctx.fillStyle = '#ffd700';
+            ctx.strokeStyle = '#ffa500';
+            ctx.shadowColor = '#ffd700';
+            ctx.shadowBlur = 15;
+        } else {
+            ctx.fillStyle = 'rgba(255, 215, 0, 0.5)';
+            ctx.strokeStyle = 'rgba(255, 165, 0, 0.5)';
+        }
+
+        // 矢印を描画
+        ctx.translate(indicatorX, indicatorY);
+        ctx.rotate(ehoAngle);
+
+        ctx.beginPath();
+        ctx.moveTo(15, 0);
+        ctx.lineTo(-10, -10);
+        ctx.lineTo(-5, 0);
+        ctx.lineTo(-10, 10);
+        ctx.closePath();
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.rotate(-ehoAngle);
+        ctx.translate(-indicatorX, -indicatorY);
+
+        // 「恵方」ラベル
+        ctx.shadowBlur = 0;
+        ctx.font = 'bold 14px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('恵方', indicatorX, indicatorY + 25);
+
+        // 恵方ボーナス表示
+        if (this.isFacingEho) {
+            ctx.fillStyle = '#ffd700';
+            ctx.font = 'bold 12px sans-serif';
+            ctx.fillText('+' + CONFIG.SCORE_EHO_PER_SEC + '/秒', indicatorX, indicatorY + 40);
+        }
+
+        ctx.restore();
     }
 }

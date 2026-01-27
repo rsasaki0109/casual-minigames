@@ -71,11 +71,21 @@ body {
 .eho-info {
     font-size: 1.5rem;
     color: #ff6b6b;
-    margin-bottom: 30px;
+    margin-bottom: 15px;
     padding: 10px 20px;
     background: rgba(255, 107, 107, 0.2);
     border-radius: 5px;
     border: 2px solid #ff6b6b;
+}
+
+.game-hint {
+    font-size: 1.3rem;
+    color: #fff;
+    margin-bottom: 20px;
+    padding: 8px 16px;
+    background: rgba(255, 215, 0, 0.2);
+    border-radius: 5px;
+    border: 2px solid #ffd700;
 }
 
 .highscore-display {
@@ -340,6 +350,39 @@ body {
     display: flex;
     flex-direction: column;
     gap: 10px;
+}
+
+/* チュートリアル表示 */
+.tutorial-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.8);
+    padding: 20px 30px;
+    border-radius: 10px;
+    border: 2px solid #ffd700;
+    text-align: center;
+    z-index: 20;
+    animation: fadeInOut 3s ease forwards;
+}
+
+.tutorial-overlay h3 {
+    color: #ffd700;
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+}
+
+.tutorial-overlay p {
+    color: #fff;
+    font-size: 1.1rem;
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+    10% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    80% { opacity: 1; }
+    100% { opacity: 0; pointer-events: none; }
 }
 
 /* レスポンシブ対応 */
