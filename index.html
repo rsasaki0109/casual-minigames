@@ -152,6 +152,54 @@
             opacity: 0;
             transition: opacity 0.1s;
         }
+        /* Virtual Joystick */
+        #joystickContainer {
+            display: none;
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            width: 120px;
+            height: 120px;
+            z-index: 1000;
+        }
+        #joystickBase {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            background: rgba(255, 255, 255, 0.3);
+            border: 3px solid rgba(255, 107, 157, 0.7);
+            border-radius: 50%;
+        }
+        #joystickKnob {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 107, 157, 0.8);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 10px rgba(255, 107, 157, 0.5);
+        }
+        @media (pointer: coarse), (max-width: 900px) {
+            #joystickContainer {
+                display: block;
+            }
+            .instructions {
+                display: none;
+            }
+        }
+        /* Mobile responsive canvas */
+        @media (max-width: 850px) {
+            #gameCanvas {
+                width: 100vw;
+                height: auto;
+                max-height: 80vh;
+            }
+            .stat-bar {
+                width: 100px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -182,7 +230,13 @@
                 <strong>60秒生き残るか、Lv.5に到達すればクリア!</strong>
             </div>
             <button id="retryBtn">START</button>
-            <div class="instructions">操作: WASD / 矢印キーで移動</div>
+            <div class="instructions">操作: WASD / 矢印キー / 画面左下のジョイスティックで移動</div>
+        </div>
+        <!-- Virtual Joystick for Mobile -->
+        <div id="joystickContainer">
+            <div id="joystickBase">
+                <div id="joystickKnob"></div>
+            </div>
         </div>
     </div>
 
@@ -253,6 +307,18 @@
         let lastTime = 0;
         let keys = {};
 
+        // ===== Virtual Joystick State =====
+        let joystick = {
+            active: false,
+            startX: 0,
+            startY: 0,
+            moveX: 0,
+            moveY: 0,
+            knob: null,
+            base: null,
+            maxDistance: 40
+        };
+
         // ===== Player Class =====
         class Player {
             constructor(x, y) {
@@ -266,15 +332,27 @@
 
             update() {
                 let dx = 0, dy = 0;
+
+                // Keyboard input
                 if (keys['KeyW'] || keys['ArrowUp']) dy -= PLAYER_SPEED;
                 if (keys['KeyS'] || keys['ArrowDown']) dy += PLAYER_SPEED;
                 if (keys['KeyA'] || keys['ArrowLeft']) dx -= PLAYER_SPEED;
                 if (keys['KeyD'] || keys['ArrowRight']) dx += PLAYER_SPEED;
 
+                // Joystick input
+                if (joystick.active) {
+                    const joyDist = Math.sqrt(joystick.moveX ** 2 + joystick.moveY ** 2);
+                    if (joyDist > 5) { // Dead zone
+                        dx += (joystick.moveX / joystick.maxDistance) * PLAYER_SPEED;
+                        dy += (joystick.moveY / joystick.maxDistance) * PLAYER_SPEED;
+                    }
+                }
+
                 // Normalize diagonal movement
-                if (dx !== 0 && dy !== 0) {
-                    dx *= 0.707;
-                    dy *= 0.707;
+                const magnitude = Math.sqrt(dx * dx + dy * dy);
+                if (magnitude > PLAYER_SPEED) {
+                    dx = (dx / magnitude) * PLAYER_SPEED;
+                    dy = (dy / magnitude) * PLAYER_SPEED;
                 }
 
                 this.x = Math.max(this.size, Math.min(CANVAS_WIDTH - this.size, this.x + dx));
@@ -897,6 +975,67 @@
 
             // Start/Retry button
             document.getElementById('retryBtn').addEventListener('click', startGame);
+
+            // ===== Virtual Joystick Setup =====
+            joystick.base = document.getElementById('joystickBase');
+            joystick.knob = document.getElementById('joystickKnob');
+            const joystickContainer = document.getElementById('joystickContainer');
+
+            function handleJoystickStart(e) {
+                e.preventDefault();
+                const touch = e.touches ? e.touches[0] : e;
+                const rect = joystick.base.getBoundingClientRect();
+                joystick.active = true;
+                joystick.startX = rect.left + rect.width / 2;
+                joystick.startY = rect.top + rect.height / 2;
+            }
+
+            function handleJoystickMove(e) {
+                if (!joystick.active) return;
+                e.preventDefault();
+                const touch = e.touches ? e.touches[0] : e;
+
+                let deltaX = touch.clientX - joystick.startX;
+                let deltaY = touch.clientY - joystick.startY;
+
+                // Limit to max distance
+                const distance = Math.sqrt(deltaX ** 2 + deltaY ** 2);
+                if (distance > joystick.maxDistance) {
+                    deltaX = (deltaX / distance) * joystick.maxDistance;
+                    deltaY = (deltaY / distance) * joystick.maxDistance;
+                }
+
+                joystick.moveX = deltaX;
+                joystick.moveY = deltaY;
+
+                // Update knob position
+                joystick.knob.style.transform = `translate(calc(-50% + ${deltaX}px), calc(-50% + ${deltaY}px))`;
+            }
+
+            function handleJoystickEnd(e) {
+                e.preventDefault();
+                joystick.active = false;
+                joystick.moveX = 0;
+                joystick.moveY = 0;
+                joystick.knob.style.transform = 'translate(-50%, -50%)';
+            }
+
+            // Touch events
+            joystickContainer.addEventListener('touchstart', handleJoystickStart, { passive: false });
+            document.addEventListener('touchmove', handleJoystickMove, { passive: false });
+            document.addEventListener('touchend', handleJoystickEnd, { passive: false });
+
+            // Mouse events (for testing on desktop)
+            joystickContainer.addEventListener('mousedown', handleJoystickStart);
+            document.addEventListener('mousemove', (e) => {
+                if (joystick.active) handleJoystickMove(e);
+            });
+            document.addEventListener('mouseup', handleJoystickEnd);
+
+            // Prevent scrolling/zooming on mobile
+            document.addEventListener('touchmove', (e) => {
+                if (gameState === 'playing') e.preventDefault();
+            }, { passive: false });
 
             // Initial draw
             draw();
