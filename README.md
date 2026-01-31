@@ -9,6 +9,7 @@
 - [Ehomaki Eating Challenge](#ehomaki-eating-challenge) - 恵方巻き早食いチャレンジ
 - [Oni Blaster - Bean Throwing Battle](#oni-blaster---bean-throwing-battle) - 鬼退治！豆まきバトル
 - [Flying Carpet Runner](#flying-carpet-runner) - 空飛ぶ絨毯ランナー
+- [Anti-Slip Runner](#anti-slip-runner) - 滑って転ばないバランスゲーム
 
 ## Games
 
@@ -59,3 +60,13 @@ Cyberpunk racing game
 [![Gameplay](https://raw.githubusercontent.com/rsasaki0109/flying_carpet_runner/main/gameplay.gif)](https://rsasaki0109.github.io/flying_carpet_runner/)
 
 [Play Now](https://rsasaki0109.github.io/flying_carpet_runner/) | [Repository](https://github.com/rsasaki0109/flying_carpet_runner)
+
+---
+
+### Anti-Slip Runner
+
+滑って転ばないバランスゲーム
+
+[![Gameplay](https://raw.githubusercontent.com/rsasaki0109/anti_slip_runner/main/gameplay.gif)](https://rsasaki0109.github.io/anti_slip_runner/)
+
+[Play Now](https://rsasaki0109.github.io/anti_slip_runner/) | [Repository](https://github.com/rsasaki0109/anti_slip_runner)
