@@ -6,7 +6,7 @@
   "scripts": {
     "serve": "npx serve docs -p 3000",
     "capture": "node scripts/playwright_capture.js",
-    "gif": "ffmpeg -i recordings/gameplay.webm -vf \"fps=15,scale=400:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse\" -loop 0 docs/preview.gif",
+    "gif": "node scripts/convert_gif.js",
     "preview": "npm run capture && npm run gif",
     "test": "echo \"No tests configured\""
   },
@@ -26,5 +26,9 @@
   "license": "MIT",
   "devDependencies": {
     "playwright": "^1.40.0"
+  },
+  "dependencies": {
+    "@ffmpeg-installer/ffmpeg": "^1.1.0",
+    "fluent-ffmpeg": "^2.1.3"
   }
 }
