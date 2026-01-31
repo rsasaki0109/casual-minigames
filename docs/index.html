@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Anti-Slip Runner</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="game-container">
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- Title Screen -->
+    <div id="title-screen" class="screen">
+      <h1>Anti-Slip Runner</h1>
+      <p class="subtitle">滑って転ばないで！</p>
+      <button id="start-btn" class="btn">START</button>
+    </div>
+
+    <!-- Stage Select Screen -->
+    <div id="stage-select" class="screen hidden">
+      <h2>SELECT STAGE</h2>
+      <div class="stage-buttons">
+        <button id="stage-roller" class="btn stage-btn">
+          <span class="stage-icon">🛼</span>
+          <span class="stage-name">ROLLER SKATE</span>
+          <span class="stage-desc">摩擦係数: 0.35</span>
+        </button>
+        <button id="stage-ice" class="btn stage-btn">
+          <span class="stage-icon">🧊</span>
+          <span class="stage-name">ICE</span>
+          <span class="stage-desc">摩擦係数: 0.15</span>
+        </button>
+      </div>
+      <button id="back-to-title" class="btn btn-small">BACK</button>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div id="game-over" class="screen hidden">
+      <h2>GAME OVER</h2>
+      <p id="final-score">Score: 0</p>
+      <p id="final-distance">Distance: 0m</p>
+      <button id="retry-btn" class="btn">RETRY</button>
+      <button id="select-btn" class="btn btn-small">STAGE SELECT</button>
+    </div>
+
+    <!-- HUD -->
+    <div id="hud" class="hidden">
+      <div id="score-display">Score: <span id="score">0</span></div>
+      <div id="distance-display">Distance: <span id="distance">0</span>m</div>
+      <div id="balance-container">
+        <div id="balance-label">BALANCE</div>
+        <div id="balance-bar">
+          <div id="balance-fill"></div>
+        </div>
+      </div>
+      <div id="item-display" class="hidden">
+        <span id="item-icon">🔩</span>
+        <span id="item-timer">10s</span>
+      </div>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
