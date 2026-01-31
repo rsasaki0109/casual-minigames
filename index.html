@@ -228,6 +228,7 @@
                 <h1>アイドルサバイバル</h1>
                 <p>〜バレンタインの試練〜</p>
             </div>
+            <div id="overlayTitle"></div>
             <div id="overlayMessage">
                 あなたは人気すぎて大変なアイドル!<br>
                 ファンからのチョコを集めてレベルアップしよう。<br>
@@ -845,12 +846,18 @@
             const titleEl = document.getElementById('overlayTitle');
             const messageEl = document.getElementById('overlayMessage');
             const btn = document.getElementById('retryBtn');
+            const titleScreen = document.querySelector('.title-screen');
 
             overlay.classList.remove('hidden');
             titleEl.textContent = title;
             titleEl.style.color = color;
             messageEl.innerHTML = message;
             btn.textContent = 'RETRY';
+
+            // Hide title screen on game over/clear
+            if (titleScreen) {
+                titleScreen.style.display = 'none';
+            }
         }
 
         function hideOverlay() {
