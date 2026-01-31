@@ -67,6 +67,6 @@ Cyberpunk racing game
 
 滑って転ばないバランスゲーム
 
-[![Gameplay](https://raw.githubusercontent.com/rsasaki0109/anti_slip_runner/main/gameplay.gif)](https://rsasaki0109.github.io/anti_slip_runner/)
+[![Gameplay](https://raw.githubusercontent.com/rsasaki0109/anti_slip_runner/main/docs/preview.gif)](https://rsasaki0109.github.io/anti_slip_runner/)
 
 [Play Now](https://rsasaki0109.github.io/anti_slip_runner/) | [Repository](https://github.com/rsasaki0109/anti_slip_runner)
