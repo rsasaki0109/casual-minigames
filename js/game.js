@@ -177,10 +177,6 @@ class Game {
 
     // ゲーム開始
     startGame() {
-        // リサイズして最新のサイズを取得
-        this.resizeCanvas();
-        this.updateBackground();
-
         this.state = GameState.PLAYING;
         this.elapsedTime = 0;
         this.score = 0;
@@ -214,9 +210,15 @@ class Game {
         this.ui.showScreen('game');
         this.ui.hidePause();
 
-        // ゲームループ開始
-        this.lastTime = performance.now();
-        requestAnimationFrame((time) => this.gameLoop(time));
+        // 画面表示後にリサイズ（レイアウト確定後）
+        requestAnimationFrame(() => {
+            this.resizeCanvas();
+            this.updateBackground();
+
+            // ゲームループ開始
+            this.lastTime = performance.now();
+            requestAnimationFrame((time) => this.gameLoop(time));
+        });
     }
 
     // にらみ処理
