@@ -448,7 +448,12 @@
 
                     if (this.level === MAX_LEVEL) {
                         gameState = 'clear';
-                        showOverlay('CLEAR!', 'おめでとう!<br>Lv.5に到達した!<br>トップアイドルだ!', '#44ff44');
+                        const survivalTime = Math.floor(GAME_DURATION - timer);
+                        showOverlay('CLEAR!',
+                            `おめでとう!<br>Lv.5に到達した!<br>トップアイドルだ!<br><br>` +
+                            `📊 スコア<br>` +
+                            `経験値: ${this.exp}<br>` +
+                            `生存時間: ${survivalTime}秒`, '#44ff44');
                     }
                 }
             }
@@ -913,7 +918,11 @@
             if (timer <= 0) {
                 timer = 0;
                 gameState = 'clear';
-                showOverlay('CLEAR!', 'おめでとう!<br>60秒生き残った!<br>人気者はつらいよ...', '#44ff44');
+                showOverlay('CLEAR!',
+                    `おめでとう!<br>60秒生き残った!<br>人気者はつらいよ...<br><br>` +
+                    `📊 スコア<br>` +
+                    `レベル: ${player.level}<br>` +
+                    `経験値: ${player.exp}`, '#44ff44');
                 return;
             }
 
