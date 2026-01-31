@@ -427,7 +427,13 @@
 
                 if (this.hp <= 0) {
                     gameState = 'gameover';
-                    showOverlay('GAME OVER', 'アイドルは倒れた...<br>石に当たりすぎだ!', '#ff4444');
+                    const survivalTime = Math.floor(GAME_DURATION - timer);
+                    showOverlay('GAME OVER',
+                        `アイドルは倒れた...<br>石に当たりすぎだ!<br><br>` +
+                        `📊 スコア<br>` +
+                        `レベル: ${this.level}<br>` +
+                        `経験値: ${this.exp}<br>` +
+                        `生存時間: ${survivalTime}秒`, '#ff4444');
                 }
             }
 
