@@ -1,0 +1,17 @@
+{
+  "name": "flying_carpet_runner",
+  "version": "1.0.0",
+  "description": "![Gameplay](gameplay.gif)",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "canvas": "^3.2.1",
+    "gifencoder": "^2.0.1",
+    "playwright": "^1.58.1"
+  }
+}
