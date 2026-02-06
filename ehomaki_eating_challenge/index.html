@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no, maximum-scale=1.0">
+    <title>恵方を向いて、最後まで食べ切れチャレンジ</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="game-container">
+        <!-- タイトル画面 -->
+        <div id="title-screen" class="screen">
+            <h1 class="title">恵方を向いて、<br>最後まで食べ切れチャレンジ</h1>
+            <p class="eho-info">2025年の恵方：西南西</p>
+            <p class="game-hint">👁 にらみで撃退 ＆ 恵方でボーナス！</p>
+            <div class="highscore-display">ハイスコア: <span id="title-highscore">0</span></div>
+            <button id="start-btn" class="btn btn-primary">ゲームスタート</button>
+            <button id="howto-btn" class="btn btn-secondary">遊び方</button>
+        </div>
+
+        <!-- 遊び方モーダル -->
+        <div id="howto-modal" class="modal hidden">
+            <div class="modal-content">
+                <h2>遊び方</h2>
+                <ul class="howto-list">
+                    <li>恵方巻を最後まで食べ切ればクリア！</li>
+                    <li>四方から現れる「恵方巻泥棒」を撃退しよう</li>
+                    <li>マウスを動かして「にらみ」の方向を決める</li>
+                    <li>にらみは常時発動！方向を合わせるだけ</li>
+                    <li>恵方（西南西）を向くとボーナスポイント！</li>
+                    <li>泥棒に触れられたらゲームオーバー</li>
+                </ul>
+                <h3>操作方法</h3>
+                <table class="controls-table">
+                    <tr><td>マウス移動</td><td>にらみの方向を変える</td></tr>
+                    <tr><td>Escキー</td><td>一時停止</td></tr>
+                </table>
+                <button id="close-howto" class="btn btn-primary">閉じる</button>
+            </div>
+        </div>
+
+        <!-- ゲーム画面 -->
+        <div id="game-screen" class="screen hidden">
+            <div id="game-ui">
+                <div class="ui-left">
+                    <div class="score-display">スコア: <span id="score">0</span></div>
+                    <div class="combo-display">倍率: <span id="combo">1.0</span>x</div>
+                </div>
+                <div class="ui-center">
+                    <div class="ehomaki-gauge">
+                        <div class="gauge-label">残り: <span id="remaining-percent">100</span>%</div>
+                        <div class="gauge-bar">
+                            <div id="gauge-fill" class="gauge-fill"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="ui-right">
+                    <button id="pause-btn" class="btn btn-small">一時停止</button>
+                </div>
+            </div>
+            <canvas id="game-canvas"></canvas>
+        </div>
+
+        <!-- ポーズ画面 -->
+        <div id="pause-screen" class="screen hidden">
+            <div class="pause-content">
+                <h2>一時停止</h2>
+                <button id="resume-btn" class="btn btn-primary">再開</button>
+                <button id="quit-btn" class="btn btn-secondary">タイトルに戻る</button>
+            </div>
+        </div>
+
+        <!-- リザルト画面 -->
+        <div id="result-screen" class="screen hidden">
+            <h2 id="result-title" class="result-title"></h2>
+            <div class="result-content">
+                <div class="final-score">最終スコア: <span id="final-score">0</span></div>
+                <div id="new-record" class="new-record hidden">NEW RECORD!</div>
+                <div class="stats">
+                    <div>撃退した泥棒: <span id="enemies-defeated">0</span>体</div>
+                    <div>経過時間: <span id="elapsed-time">0</span>秒</div>
+                </div>
+            </div>
+            <div class="result-buttons">
+                <button id="retry-btn" class="btn btn-primary">もう一度遊ぶ</button>
+                <button id="title-btn" class="btn btn-secondary">タイトルに戻る</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/utils.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/enemy.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
