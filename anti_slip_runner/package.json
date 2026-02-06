@@ -1,0 +1,34 @@
+{
+  "name": "anti-slip-runner",
+  "version": "1.0.0",
+  "description": "A mini-game about not slipping and falling - Canvas 2D game with Roller Skate and Ice stages",
+  "main": "docs/game.js",
+  "scripts": {
+    "serve": "npx serve docs -p 3000",
+    "capture": "node scripts/playwright_capture.js",
+    "gif": "node scripts/convert_gif.js",
+    "preview": "npm run capture && npm run gif",
+    "test": "echo \"No tests configured\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/anti-slip-runner.git"
+  },
+  "keywords": [
+    "game",
+    "canvas",
+    "mini-game",
+    "web-game",
+    "roller-skate",
+    "ice"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "playwright": "^1.40.0"
+  },
+  "dependencies": {
+    "@ffmpeg-installer/ffmpeg": "^1.1.0",
+    "fluent-ffmpeg": "^2.1.3"
+  }
+}
