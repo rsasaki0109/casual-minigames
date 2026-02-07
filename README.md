@@ -31,13 +31,6 @@
 
 ---
 
-### minigame_collection
-ブラウザで遊べるミニゲーム集
-
-[> 詳細](./minigame_collection/)
-
----
-
 ### idol_survival_valentine
 アイドルサバイバルバレンタイン
 
